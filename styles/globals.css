@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --bg: #0f1724;
+  --card: #0b1220;
+  --muted: #94a3b8;
+  --accent: #6366f1;
+}
+
+html,body,#__next{
+  height:100%;
+}
+
+body{
+  @apply bg-slate-900 text-slate-100 antialiased;
+  background: linear-gradient(180deg,var(--bg),#071023);
+}
+
+.container{
+  @apply max-w-4xl mx-auto px-6 py-8;
+}
+
+.header{ @apply flex items-center justify-between }
+.site-title{ @apply text-xl font-semibold }
+.nav-link{ @apply text-slate-300 hover:text-white ml-4 }
+.hero-title{ @apply text-4xl font-extrabold }
+.lead{ @apply mt-3 text-slate-300 max-w-3xl }
+.btn{ @apply inline-block mt-4 px-4 py-2 rounded-md font-semibold text-white bg-indigo-600 hover:bg-indigo-500 }
+.card{ @apply bg-slate-800/60 border border-slate-700 rounded-xl p-5 }
+.project-grid{ @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 }
+.footer{ @apply text-slate-400 text-sm mt-10 }
