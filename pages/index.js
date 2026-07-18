@@ -1,34 +1,44 @@
 import Head from 'next/head'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+const ROLES = ['web apps', 'CLI tools', 'automations', 'interfaces', 'experiences']
 
 const PROJECTS = [
   {
     name: 'Project Alpha',
     tag: 'Web App',
+    year: '2025',
     description: 'A real-time collaboration tool built with Next.js and WebSockets. Focused on speed and a frictionless editor experience.',
     tech: ['Next.js', 'WebSocket', 'Postgres'],
     url: '#',
+    accent: 'blue',
   },
   {
     name: 'CLI Toolkit',
     tag: 'CLI',
+    year: '2024',
     description: 'A collection of small command-line utilities for daily developer workflows — file watchers, log parsers, and scaffolders.',
     tech: ['Go', 'Cobra', 'Bash'],
     url: '#',
+    accent: 'teal',
   },
   {
     name: 'Pixel Lab',
     tag: 'Experiment',
+    year: '2024',
     description: 'A browser-based pixel art editor with palette swapping, animation frames, and exportable spritesheets.',
     tech: ['TypeScript', 'Canvas', 'Vite'],
     url: '#',
+    accent: 'orange',
   },
   {
     name: 'Home Automation',
     tag: 'Hardware',
+    year: '2023',
     description: 'A small firmware + bridge for controlling lights and sensors from a self-hosted dashboard.',
     tech: ['ESP32', 'MQTT', 'React'],
     url: '#',
+    accent: 'blue',
   },
 ]
 
@@ -41,10 +51,42 @@ const SKILLS = [
   { label: 'DevOps', level: 65 },
 ]
 
+const TIMELINE = [
+  {
+    year: '2025',
+    title: 'Independent / Freelance',
+    place: 'Remote',
+    body: 'Building web apps and tooling for small teams. Focused on shipping fast and keeping stacks simple.',
+  },
+  {
+    year: '2023',
+    title: 'Senior Engineer',
+    place: 'SaaS startup',
+    body: 'Led the rebuild of the core dashboard, introduced design tokens, and cut bundle size by 40%.',
+  },
+  {
+    year: '2021',
+    title: 'Full-stack Engineer',
+    place: 'Agency',
+    body: 'Shipped a dozen client projects across e-commerce, internal tools, and marketing sites.',
+  },
+  {
+    year: '2020',
+    title: 'Started coding',
+    place: 'Self-taught',
+    body: 'Picked up JavaScript and Python, fell in love with automation and small hardware projects.',
+  },
+]
+
 const SOCIALS = [
   { label: 'GitHub', handle: '@ts19u', href: 'https://github.com/ts19u' },
   { label: 'Email', handle: 'ts19u@example.com', href: 'mailto:ts19u@example.com' },
   { label: 'X', handle: '@ts19u', href: 'https://x.com/ts19u' },
+]
+
+const MARQUEE = [
+  'TypeScript', 'React', 'Next.js', 'Node.js', 'Go', 'Postgres', 'Tailwind',
+  'Vite', 'Docker', 'Redis', 'GraphQL', 'Python', 'AWS', 'Supabase',
 ]
 
 function useReveal() {
@@ -59,11 +101,34 @@ function useReveal() {
           }
         })
       },
-      { threshold: 0.15 }
+      { threshold: 0.12 }
     )
     els.forEach((el) => io.observe(el))
     return () => io.disconnect()
   }, [])
+}
+
+function useMagnetic() {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const onMove = (e) => {
+      const r = el.getBoundingClientRect()
+      const x = e.clientX - (r.left + r.width / 2)
+      const y = e.clientY - (r.top + r.height / 2)
+      const strength = 0.25
+      el.style.transform = `translate(${x * strength}px, ${y * strength}px)`
+    }
+    const onLeave = () => { el.style.transform = '' }
+    el.addEventListener('mousemove', onMove)
+    el.addEventListener('mouseleave', onLeave)
+    return () => {
+      el.removeEventListener('mousemove', onMove)
+      el.removeEventListener('mouseleave', onLeave)
+    }
+  }, [])
+  return ref
 }
 
 export default function Home() {
@@ -71,6 +136,9 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('home')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [roleIdx, setRoleIdx] = useState(0)
+  const [progress, setProgress] = useState(0)
+  const primaryBtnRef = useMagnetic()
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -81,14 +149,19 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
+    const onScroll = () => {
+      const h = document.documentElement
+      const max = h.scrollHeight - h.clientHeight
+      setScrolled(window.scrollY > 24)
+      setProgress(max > 0 ? (window.scrollY / max) * 100 : 0)
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
-    const ids = ['home', 'about', 'projects', 'contact']
+    const ids = ['home', 'about', 'projects', 'experience', 'contact']
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
@@ -104,6 +177,11 @@ export default function Home() {
     return () => io.disconnect()
   }, [])
 
+  useEffect(() => {
+    const t = setInterval(() => setRoleIdx((i) => (i + 1) % ROLES.length), 2200)
+    return () => clearInterval(t)
+  }, [])
+
   useReveal()
 
   function toggleTheme() {
@@ -117,6 +195,7 @@ export default function Home() {
     { id: 'home', label: 'Home' },
     { id: 'about', label: 'About' },
     { id: 'projects', label: 'Projects' },
+    { id: 'experience', label: 'Experience' },
     { id: 'contact', label: 'Contact' },
   ]
 
@@ -128,6 +207,8 @@ export default function Home() {
         <meta property="og:title" content="ts19u — Developer & Maker" />
         <meta property="og:description" content="Developer, maker, and lifelong learner. Building simple, reliable software." />
       </Head>
+
+      <div className="progress-bar" style={{ width: `${progress}%` }} aria-hidden />
 
       <div className="bg-orb orb-1" aria-hidden />
       <div className="bg-orb orb-2" aria-hidden />
@@ -182,16 +263,18 @@ export default function Home() {
               <span className="status-dot" /> Available for work
             </p>
             <h1 className="hero-title" data-reveal>
-              Hi, I'm <span className="gradient-text">ts19u</span>
-              <br />
-              I build <span className="gradient-text">simple, reliable</span> software.
+              <span className="hero-line">Hi, I'm <span className="gradient-text">ts19u</span>.</span>
+              <span className="hero-line">
+                I build <span className="role-wrap"><span className="role-text">{ROLES[roleIdx]}</span></span>
+              </span>
+              <span className="hero-line">that just work.</span>
             </h1>
             <p className="lead" data-reveal>
               Developer, maker, and lifelong learner. I focus on practical web and tooling
               projects — clean design, automation, and learning by building.
             </p>
             <div className="hero-cta" data-reveal>
-              <a className="btn btn-primary" href="#projects">
+              <a className="btn btn-primary" href="#projects" ref={primaryBtnRef} data-magnetic>
                 View my work
                 <span className="btn-arrow">→</span>
               </a>
@@ -268,6 +351,14 @@ export default function Home() {
           </div>
         </section>
 
+        <div className="marquee" aria-hidden data-reveal>
+          <div className="marquee-track">
+            {[...MARQUEE, ...MARQUEE].map((t, i) => (
+              <span key={i} className="marquee-item">{t}<span className="marquee-dot">•</span></span>
+            ))}
+          </div>
+        </div>
+
         <section id="projects" className="section">
           <div className="container">
             <div className="section-head" data-reveal>
@@ -277,12 +368,10 @@ export default function Home() {
 
             <div className="project-grid">
               {PROJECTS.map((p) => (
-                <article key={p.name} className="project-card" data-reveal>
+                <article key={p.name} className={`project-card accent-${p.accent}`} data-reveal>
                   <div className="project-top">
                     <span className="project-tag">{p.tag}</span>
-                    <a href={p.url} className="project-link" aria-label={`Open ${p.name}`}>
-                      ↗
-                    </a>
+                    <span className="project-year">{p.year}</span>
                   </div>
                   <h3 className="project-name">{p.name}</h3>
                   <p className="project-desc">{p.description}</p>
@@ -291,16 +380,42 @@ export default function Home() {
                       <span key={t} className="chip">{t}</span>
                     ))}
                   </div>
+                  <a href={p.url} className="project-link" aria-label={`Open ${p.name}`}>
+                    View project <span>↗</span>
+                  </a>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="contact" className="section">
+        <section id="experience" className="section">
           <div className="container">
             <div className="section-head" data-reveal>
               <span className="section-index">03</span>
+              <h2 className="section-title">Experience</h2>
+            </div>
+
+            <ol className="timeline">
+              {TIMELINE.map((t) => (
+                <li key={t.year} className="timeline-item" data-reveal>
+                  <div className="timeline-marker"><span /></div>
+                  <div className="timeline-body">
+                    <span className="timeline-year">{t.year}</span>
+                    <h3 className="timeline-title">{t.title}</h3>
+                    <span className="timeline-place">{t.place}</span>
+                    <p className="timeline-text">{t.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section id="contact" className="section">
+          <div className="container">
+            <div className="section-head" data-reveal>
+              <span className="section-index">04</span>
               <h2 className="section-title">Contact</h2>
             </div>
 
