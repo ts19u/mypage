@@ -300,10 +300,6 @@ export default function Home() {
               </div>
             </div>
 
-            <a href="#about" className="scroll-cue" aria-label="Scroll to about">
-              <span className="mouse"><span className="wheel" /></span>
-              <span className="scroll-text">Scroll</span>
-            </a>
           </div>
         </section>
 
